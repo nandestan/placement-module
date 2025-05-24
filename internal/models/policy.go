@@ -33,7 +33,9 @@ type PolicyConfig struct {
 // EligibilityResult represents the output for each student [cite: 10]
 type EligibilityResult struct {
 	StudentID       int      `json:"studentId"`
+	StudentName     string   `json:"studentName"`
 	CompanyID       string   `json:"companyId"`
+	CompanyName     string   `json:"companyName"`
 	IsEligible      bool     `json:"isEligible"`
 	Reasons         []string `json:"reasons"` // List of reasons supporting the decision [cite: 10]
 	PolicySpecifics string   `json:"policySpecifics,omitempty"` // Policy-specific details where applicable [cite: 10]

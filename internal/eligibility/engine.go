@@ -12,8 +12,10 @@ import (
 func PerformEligibilityCheck(student models.Student, company models.Company) models.EligibilityResult {
 	result := models.EligibilityResult{
 		StudentID:  student.ID,
+		StudentName: student.FullName,
 		CompanyID:  company.ID,
-		IsEligible: true, // Assume eligible until a policy blocks
+		CompanyName: company.Name,
+		IsEligible: true,
 		Reasons:    []string{},
 	}
 

@@ -167,8 +167,8 @@ const EligibilityCheckerPage: React.FC = () => {
                         </Typography>
 
                         <Typography variant="body2" sx={{ mt: 1 }}>
-                            For Student ID: {eligibilityResult.studentId} <br />
-                            For Company ID: {eligibilityResult.companyId}
+                            For Student : {eligibilityResult.studentName} (ID: {eligibilityResult.studentId})<br />
+                            For Company : {eligibilityResult.companyName} (ID: {eligibilityResult.companyId})
                         </Typography>
 
                         {eligibilityResult.reasons && eligibilityResult.reasons.length > 0 && (
