@@ -21,13 +21,10 @@ This project implements a configurable college placement policy system using Go.
 
 ### Running the Application
 
-1.  Navigate to the `cmd/api` directory:
-    ```bash
-    cd cmd/api
-    ```
+1.  Ensure you are in the project root directory.
 2.  Run the main application:
     ```bash
-    go run main.go
+    go run cmd/api/main.go
     ```
 
 The server will start on port `8080`.

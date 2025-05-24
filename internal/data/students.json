@@ -1,0 +1,252 @@
+[
+  {
+    "id": 1,
+    "name": "Arjun Sharma",
+    "cgpa": 9.2,
+    "isPlaced": true,
+    "currentSalary": 4500000,
+    "companiesApplied": 1,
+    "dreamOffer": 5000000,
+    "dreamCompany": "Google"
+  },
+  {
+    "id": 2,
+    "name": "Priya Patel",
+    "cgpa": 8.8,
+    "isPlaced": true,
+    "currentSalary": 3800000,
+    "companiesApplied": 1,
+    "dreamOffer": 4200000,
+    "dreamCompany": "Microsoft"
+  },
+  {
+    "id": 3,
+    "name": "Rahul Kumar",
+    "cgpa": 8.5,
+    "isPlaced": true,
+    "currentSalary": 2800000,
+    "companiesApplied": 2,
+    "dreamOffer": 3500000,
+    "dreamCompany": "Amazon"
+  },
+  {
+    "id": 4,
+    "name": "Sneha Gupta",
+    "cgpa": 7.9,
+    "isPlaced": true,
+    "currentSalary": 2200000,
+    "companiesApplied": 1,
+    "dreamOffer": 2800000,
+    "dreamCompany": "Apple"
+  },
+  {
+    "id": 5,
+    "name": "Vikram Singh",
+    "cgpa": 7.2,
+    "isPlaced": true,
+    "currentSalary": 1800000,
+    "companiesApplied": 3,
+    "dreamOffer": 2500000,
+    "dreamCompany": "Netflix"
+  },
+  {
+    "id": 6,
+    "name": "Ananya Joshi",
+    "cgpa": 8.1,
+    "isPlaced": true,
+    "currentSalary": 1200000,
+    "companiesApplied": 1,
+    "dreamOffer": 1800000,
+    "dreamCompany": "Flipkart"
+  },
+  {
+    "id": 7,
+    "name": "Karthik Reddy",
+    "cgpa": 6.8,
+    "isPlaced": true,
+    "currentSalary": 800000,
+    "companiesApplied": 2,
+    "dreamOffer": 1500000,
+    "dreamCompany": "Paytm"
+  },
+  {
+    "id": 8,
+    "name": "Divya Nair",
+    "cgpa": 9.1,
+    "isPlaced": false,
+    "currentSalary": 0,
+    "companiesApplied": 0,
+    "dreamOffer": 4000000,
+    "dreamCompany": "Google"
+  },
+  {
+    "id": 9,
+    "name": "Rohit Agarwal",
+    "cgpa": 8.7,
+    "isPlaced": false,
+    "currentSalary": 0,
+    "companiesApplied": 0,
+    "dreamOffer": 3200000,
+    "dreamCompany": "Microsoft"
+  },
+  {
+    "id": 10,
+    "name": "Meera Iyer",
+    "cgpa": 8.3,
+    "isPlaced": false,
+    "currentSalary": 0,
+    "companiesApplied": 0,
+    "dreamOffer": 2800000,
+    "dreamCompany": "Amazon"
+  },
+  {
+    "id": 11,
+    "name": "Siddharth Jain",
+    "cgpa": 7.6,
+    "isPlaced": false,
+    "currentSalary": 0,
+    "companiesApplied": 0,
+    "dreamOffer": 2000000,
+    "dreamCompany": "Adobe"
+  },
+  {
+    "id": 12,
+    "name": "Pooja Menon",
+    "cgpa": 7.1,
+    "isPlaced": false,
+    "currentSalary": 0,
+    "companiesApplied": 0,
+    "dreamOffer": 1500000,
+    "dreamCompany": "TCS"
+  },
+  {
+    "id": 13,
+    "name": "Aditya Kapoor",
+    "cgpa": 6.5,
+    "isPlaced": false,
+    "currentSalary": 0,
+    "companiesApplied": 0,
+    "dreamOffer": 1200000,
+    "dreamCompany": "Infosys"
+  },
+  {
+    "id": 14,
+    "name": "Neha Sinha",
+    "cgpa": 8.9,
+    "isPlaced": true,
+    "currentSalary": 3200000,
+    "companiesApplied": 0,
+    "dreamOffer": 6000000,
+    "dreamCompany": "Tesla"
+  },
+  {
+    "id": 15,
+    "name": "Aryan Gupta",
+    "cgpa": 7.8,
+    "isPlaced": true,
+    "currentSalary": 2500000,
+    "companiesApplied": 1,
+    "dreamOffer": 2500000,
+    "dreamCompany": "Uber"
+  },
+  {
+    "id": 16,
+    "name": "Kavya Pillai",
+    "cgpa": 8.6,
+    "isPlaced": true,
+    "currentSalary": 1500000,
+    "companiesApplied": 2,
+    "dreamOffer": 2200000,
+    "dreamCompany": "Zomato"
+  },
+  {
+    "id": 17,
+    "name": "Harsh Trivedi",
+    "cgpa": 6.9,
+    "isPlaced": true,
+    "currentSalary": 700000,
+    "companiesApplied": 1,
+    "dreamOffer": 1800000,
+    "dreamCompany": "Swiggy"
+  },
+  {
+    "id": 18,
+    "name": "Riya Shah",
+    "cgpa": 9.3,
+    "isPlaced": false,
+    "currentSalary": 0,
+    "companiesApplied": 0,
+    "dreamOffer": 5500000,
+    "dreamCompany": "Apple"
+  },
+  {
+    "id": 19,
+    "name": "Abhishek Roy",
+    "cgpa": 7.4,
+    "isPlaced": true,
+    "currentSalary": 1900000,
+    "companiesApplied": 3,
+    "dreamOffer": 2100000,
+    "dreamCompany": "Myntra"
+  },
+  {
+    "id": 20,
+    "name": "Ishita Verma",
+    "cgpa": 8.0,
+    "isPlaced": false,
+    "currentSalary": 0,
+    "companiesApplied": 0,
+    "dreamOffer": 2600000,
+    "dreamCompany": "Salesforce"
+  },
+  {
+    "id": 21,
+    "name": "Nikhil Pandey",
+    "cgpa": 6.2,
+    "isPlaced": true,
+    "currentSalary": 600000,
+    "companiesApplied": 0,
+    "dreamOffer": 2000000,
+    "dreamCompany": "Wipro"
+  },
+  {
+    "id": 22,
+    "name": "Shreya Bose",
+    "cgpa": 8.4,
+    "isPlaced": true,
+    "currentSalary": 2700000,
+    "companiesApplied": 1,
+    "dreamOffer": 3000000,
+    "dreamCompany": "Oracle"
+  },
+  {
+    "id": 23,
+    "name": "Varun Malhotra",
+    "cgpa": 7.5,
+    "isPlaced": false,
+    "currentSalary": 0,
+    "companiesApplied": 0,
+    "dreamOffer": 1800000,
+    "dreamCompany": "IBM"
+  },
+  {
+    "id": 24,
+    "name": "Tanvi Agrawal",
+    "cgpa": 9.0,
+    "isPlaced": true,
+    "currentSalary": 4200000,
+    "companiesApplied": 2,
+    "dreamOffer": 4000000,
+    "dreamCompany": "Meta"
+  },
+  {
+    "id": 25,
+    "name": "Aarav Saxena",
+    "cgpa": 6.7,
+    "isPlaced": true,
+    "currentSalary": 950000,
+    "companiesApplied": 1,
+    "dreamOffer": 1400000,
+    "dreamCompany": "Accenture"
+  }
+]

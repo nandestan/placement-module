@@ -57,7 +57,7 @@ func PerformEligibilityCheck(student models.Student, company models.Company) mod
 			} else {
 				category = "L3" // L3 below L2 threshold [cite: 6]
 			}
-			student.CurrentOfferCategory = category // Update student's internal category for logic below
+			// student.CurrentOfferCategory = category // Update student's internal category for logic below
 
 			if category == "L1" { // L1 placed students: Cannot apply to any other companies [cite: 7]
 				result.IsEligible = false

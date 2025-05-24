@@ -30,4 +30,25 @@
 
 # Folders related to specific IDEs or tools
 .DS_Store
-/build/ 
+
+# General build output directory (already covers Go build if it's named 'build')
+/build/
+
+# React frontend specific (inside 'frontend' directory)
+frontend/node_modules/
+# frontend/build/ is covered by /build/ if React build output is in frontend/build
+# If React build is directly in root 'build', it's already covered.
+# Add frontend/build/ explicitly if it's distinct and not covered by the root /build/
+frontend/.pnp
+frontend/.pnp.js
+frontend/coverage/
+
+# yarn / npm error logs specific to frontend
+frontend/yarn-error.log
+frontend/npm-debug.log
+
+# If .env files for frontend are inside the frontend directory and have specific names
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local 
