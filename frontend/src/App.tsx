@@ -1,47 +1,79 @@
 import React from 'react';
-import './App.css';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import { Routes, Route, Link } from 'react-router-dom'; // Import routing components
-import HomePage from './pages/home'; // Import HomePage
-import PolicyEditorPage from './pages/policy-editor'; // Import PolicyEditorPage
-import StudentListPage from './pages/student-list'; // Import StudentListPage
-import EligibilityCheckerPage from './pages/eligibility-checker'; // Import EligibilityCheckerPage
+import {
+  AppBar,
+  Box,
+  Button,
+  Container,
+  CssBaseline,
+  ThemeProvider,
+  Toolbar,
+  Typography,
+  createTheme,
+} from '@mui/material';
+import { Link, Route, Routes } from 'react-router-dom';
+import HomePage from './pages/home';
+import PolicyEditorPage from './pages/policy-editor';
+import StudentListPage from './pages/student-list';
+import EligibilityCheckerPage from './pages/eligibility-checker';
+import CreateStudentPage from './pages/CreateStudentPage';
+import DocumentationPage from './pages/DocumentationPage';
 
-function App() {
+// Define a custom MUI theme for consistent styling throughout the application.
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2', // Example primary color
+    },
+    secondary: {
+      main: '#dc004e', // Example secondary color
+    },
+  },
+});
+
+// App is the root component that sets up the overall application structure,
+// including theme, global styles, navigation, and routing.
+const App: React.FC = () => {
   return (
-    <>
+    <ThemeProvider theme={theme}>
+      <CssBaseline /> {/* Provides a common baseline for styling across browsers. */}
+      {/* Application Header / Navigation Bar */}
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             College Placement Policy System
           </Typography>
-          <nav>
-            <Link to="/" style={{ color: 'white', textDecoration: 'none', marginRight: '20px' }}>
-              Home
-            </Link>
-            <Link to="/student-list" style={{ color: 'white', textDecoration: 'none', marginRight: '20px' }}>
-              Student List
-            </Link>
-            <Link to="/eligibility-check" style={{ color: 'white', textDecoration: 'none', marginRight: '20px' }}>
-              Check Eligibility
-            </Link>
-            <Link to="/policy-editor" style={{ color: 'white', textDecoration: 'none' }}>
-              Policy Editor
-            </Link>
-          </nav>
+          {/* Navigation links using MUI Button styled as react-router Link */}
+          <Button color="inherit" component={Link} to="/">Home</Button>
+          <Button color="inherit" component={Link} to="/student-list">Students</Button>
+          <Button color="inherit" component={Link} to="/students/create">Create Student</Button>
+          <Button color="inherit" component={Link} to="/policies">Policy Editor</Button>
+          <Button color="inherit" component={Link} to="/eligibility-check">Eligibility Checker</Button>
+          <Button color="inherit" component={Link} to="/documentation">Documentation</Button>
         </Toolbar>
       </AppBar>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/policy-editor" element={<PolicyEditorPage />} />
-        <Route path="/eligibility-check" element={<EligibilityCheckerPage />} />
-        <Route path="/student-list" element={<StudentListPage />} />
-        {/* Add other routes here later */}
-      </Routes>
-    </>
+
+      {/* Main content area where routed pages will be rendered. */}
+      <Container component="main" sx={{ mt: 2, mb: 2 }}>
+        <Routes> {/* Defines the application's routes and their corresponding page components. */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="/student-list" element={<StudentListPage />} />
+          <Route path="/students/create" element={<CreateStudentPage />} />
+          <Route path="/policies" element={<PolicyEditorPage />} />
+          <Route path="/eligibility-check" element={<EligibilityCheckerPage />} />
+          <Route path="/documentation" element={<DocumentationPage />} />
+        </Routes>
+      </Container>
+
+      {/* Application Footer */}
+      <Box component="footer" sx={{ bgcolor: 'background.paper', py: 6 }}>
+        <Container maxWidth="lg">
+          <Typography variant="body2" color="text.secondary" align="center">
+            {'© '} {new Date().getFullYear()} College Placement System. All rights reserved.
+          </Typography>
+        </Container>
+      </Box>
+    </ThemeProvider>
   );
-}
+};
 
 export default App;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PolicyConfig, MaximumCompaniesPolicy, DreamOfferPolicy, DreamCompanyPolicy, CGPAThresholdPolicy, PlacementPercentagePolicy, OfferCategoryPolicy } from '../interfaces/policy';
+import { PolicyConfig } from '../interfaces/policy';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -7,8 +7,11 @@ import Switch from '@mui/material/Switch';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
 import Slider from '@mui/material/Slider';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 interface PolicyFormProps {
     initialData: PolicyConfig;
@@ -18,23 +21,36 @@ interface PolicyFormProps {
 
 const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving }) => {
     const [formData, setFormData] = useState<PolicyConfig>(initialData);
+    const [expanded, setExpanded] = useState<string | false>(false);
 
     useEffect(() => {
         setFormData(initialData);
     }, [initialData]);
 
+    const handleAccordionChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+        setExpanded(isExpanded ? panel : false);
+    };
+
     const handleChange = (policySection: keyof PolicyConfig, field: string, value: any) => {
         setFormData(prev => ({
             ...prev,
             [policySection]: {
-                ...prev[prev[policySection] ? policySection : Object.keys(prev)[0] as keyof PolicyConfig],
+                ...(prev[policySection] || {}), // Ensure policy section exists
                 [field]: value,
             },
         }));
     };
 
     const handleSwitchChange = (policySection: keyof PolicyConfig, field: string, checked: boolean) => {
-        handleChange(policySection, field, checked);
+        // When a policy is disabled, we might want to reset its specific values or leave them as is.
+        // For now, just updating the enabled status.
+        setFormData(prev => ({
+            ...prev,
+            [policySection]: {
+                ...(prev[policySection] || {}),
+                [field]: checked,
+            },
+        }));
     };
 
     const handleNumberChange = (policySection: keyof PolicyConfig, field: string, value: string) => {
@@ -57,243 +73,183 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving
         return <Typography>Loading form data...</Typography>;
     }
 
+    // Helper to create Textfield and Slider pair
+    const renderNumericInput = (
+        policyName: keyof PolicyConfig,
+        fieldName: string,
+        label: string,
+        min: number,
+        max: number,
+        step: number,
+        textFieldStep?: string | number
+    ) => {
+        const policy = formData[policyName] as any; // Type assertion
+        const isEnabled = policy?.enabled;
+        const value = policy?.[fieldName] ?? '';
+
+        return (
+            <Grid container spacing={2} alignItems="center" sx={{ mb: 2 }}>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                    <TextField
+                        label={label}
+                        type="number"
+                        fullWidth
+                        value={value}
+                        onChange={(e) => handleNumberChange(policyName, fieldName, e.target.value)}
+                        disabled={!isEnabled}
+                    />
+                </Grid>
+                <Grid size={{ xs: 12, sm: 6 }}>
+                    <Slider
+                        value={typeof value === 'number' ? value : min}
+                        onChange={(event, newValue) => handleSliderChange(policyName, fieldName, newValue)}
+                        aria-labelledby={`${policyName}-${fieldName}-slider`}
+                        valueLabelDisplay="auto"
+                        step={step}
+                        marks
+                        min={min}
+                        max={max}
+                        disabled={!isEnabled}
+                    />
+                </Grid>
+            </Grid>
+        );
+    };
+
     return (
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             {/* Maximum Companies Policy */}
-            <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>Maximum Companies Policy</Typography>
-                <Grid container spacing={2} alignItems="center">
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <FormControlLabel
-                            control={<Switch checked={!!formData.maximumCompanies?.enabled} onChange={(e) => handleSwitchChange('maximumCompanies', 'enabled', e.target.checked)} />}
-                            label="Enable Policy"
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <TextField
-                            label="Max Applications (N)"
-                            type="number"
-                            fullWidth
-                            value={formData.maximumCompanies?.maxN ?? ''}
-                            onChange={(e) => handleNumberChange('maximumCompanies', 'maxN', e.target.value)}
-                            disabled={!formData.maximumCompanies?.enabled}
-                            InputLabelProps={{ shrink: true }}
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <Slider
-                            value={typeof formData.maximumCompanies?.maxN === 'number' ? formData.maximumCompanies.maxN : 0}
-                            onChange={(event, newValue) => handleSliderChange('maximumCompanies', 'maxN', newValue)}
-                            aria-labelledby="max-n-slider"
-                            valueLabelDisplay="auto"
-                            step={1}
-                            marks
-                            min={0}
-                            max={20}
-                            disabled={!formData.maximumCompanies?.enabled}
-                        />
-                    </Grid>
-                </Grid>
-            </Paper>
+            <Accordion expanded={expanded === 'maximumCompanies'} onChange={handleAccordionChange('maximumCompanies')} sx={{ mb: 2 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={!!formData.maximumCompanies?.enabled}
+                                onChange={(e) => handleSwitchChange('maximumCompanies', 'enabled', e.target.checked)}
+                                onClick={(e) => e.stopPropagation()} // Prevent accordion from toggling when switch is clicked
+                            />
+                        }
+                        label={<Typography variant="h6">Maximum Companies Policy</Typography>}
+                        onClick={(e) => e.stopPropagation()} // Prevent accordion from toggling
+                        onFocus={(e) => e.stopPropagation()} // Prevent accordion from toggling
+                    />
+                </AccordionSummary>
+                <AccordionDetails>
+                    {renderNumericInput('maximumCompanies', 'maxN', 'Max Applications (N)', 0, 20, 1)}
+                </AccordionDetails>
+            </Accordion>
 
             {/* Dream Offer Policy */}
-            <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>Dream Offer Policy</Typography>
-                <FormControlLabel
-                    control={<Switch checked={!!formData.dreamOffer?.enabled} onChange={(e) => handleSwitchChange('dreamOffer', 'enabled', e.target.checked)} />}
-                    label="Enable Dream Offer Declaration"
-                />
-            </Paper>
+            <Accordion expanded={expanded === 'dreamOffer'} onChange={handleAccordionChange('dreamOffer')} sx={{ mb: 2 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={!!formData.dreamOffer?.enabled}
+                                onChange={(e) => handleSwitchChange('dreamOffer', 'enabled', e.target.checked)}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        }
+                        label={<Typography variant="h6">Dream Offer Policy</Typography>}
+                        onClick={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                    />
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Typography variant="body2" color="textSecondary">
+                        {formData.dreamOffer?.enabled ? "Students can declare a dream offer. Further configurations might be added here later." : "This policy is currently disabled."}
+                    </Typography>
+                </AccordionDetails>
+            </Accordion>
 
             {/* Dream Company Policy */}
-            <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>Dream Company Policy</Typography>
-                <FormControlLabel
-                    control={<Switch checked={!!formData.dreamCompany?.enabled} onChange={(e) => handleSwitchChange('dreamCompany', 'enabled', e.target.checked)} />}
-                    label="Enable Dream Company Declaration"
-                />
-            </Paper>
+            <Accordion expanded={expanded === 'dreamCompany'} onChange={handleAccordionChange('dreamCompany')} sx={{ mb: 2 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={!!formData.dreamCompany?.enabled}
+                                onChange={(e) => handleSwitchChange('dreamCompany', 'enabled', e.target.checked)}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        }
+                        label={<Typography variant="h6">Dream Company Policy</Typography>}
+                        onClick={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                    />
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Typography variant="body2" color="textSecondary">
+                        {formData.dreamCompany?.enabled ? "Students can declare a dream company. Further configurations might be added here later." : "This policy is currently disabled."}
+                    </Typography>
+                </AccordionDetails>
+            </Accordion>
 
             {/* CGPA Threshold Policy */}
-            <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>CGPA Threshold Policy</Typography>
-                <Grid container spacing={2} alignItems="flex-start">
-                    <Grid size={{ xs: 12, md: 12 }}>
-                        <FormControlLabel
-                            control={<Switch checked={!!formData.cgpaThreshold?.enabled} onChange={(e) => handleSwitchChange('cgpaThreshold', 'enabled', e.target.checked)} />}
-                            label="Enable Policy"
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                            label="Minimum CGPA (0.0-10.0)"
-                            type="number"
-                            fullWidth
-                            value={formData.cgpaThreshold?.minimumCGPA ?? ''}
-                            onChange={(e) => handleNumberChange('cgpaThreshold', 'minimumCGPA', e.target.value)}
-                            disabled={!formData.cgpaThreshold?.enabled}
-                            InputProps={{ inputProps: { min: 0, max: 10, step: "0.01" } }}
-                            InputLabelProps={{ shrink: true }}
-                            sx={{ mb: 1 }}
-                        />
-                        <Slider
-                            value={typeof formData.cgpaThreshold?.minimumCGPA === 'number' ? formData.cgpaThreshold.minimumCGPA : 0}
-                            onChange={(event, newValue) => handleSliderChange('cgpaThreshold', 'minimumCGPA', newValue)}
-                            aria-labelledby="min-cgpa-slider"
-                            valueLabelDisplay="auto"
-                            step={0.1}
-                            marks
-                            min={0}
-                            max={10}
-                            disabled={!formData.cgpaThreshold?.enabled}
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 6 }}>
-                        <TextField
-                            label="High Salary Threshold Amount"
-                            type="number"
-                            fullWidth
-                            value={formData.cgpaThreshold?.highSalaryThreshold ?? ''}
-                            onChange={(e) => handleNumberChange('cgpaThreshold', 'highSalaryThreshold', e.target.value)}
-                            disabled={!formData.cgpaThreshold?.enabled}
-                            InputLabelProps={{ shrink: true }}
-                            sx={{ mb: 1 }}
-                        />
-                        <Slider
-                            value={typeof formData.cgpaThreshold?.highSalaryThreshold === 'number' ? formData.cgpaThreshold.highSalaryThreshold : 0}
-                            onChange={(event, newValue) => handleSliderChange('cgpaThreshold', 'highSalaryThreshold', newValue)}
-                            aria-labelledby="high-salary-slider"
-                            valueLabelDisplay="auto"
-                            step={100000}
-                            marks
-                            min={0}
-                            max={5000000}
-                            disabled={!formData.cgpaThreshold?.enabled}
-                        />
-                    </Grid>
-                </Grid>
-            </Paper>
+            <Accordion expanded={expanded === 'cgpaThreshold'} onChange={handleAccordionChange('cgpaThreshold')} sx={{ mb: 2 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={!!formData.cgpaThreshold?.enabled}
+                                onChange={(e) => handleSwitchChange('cgpaThreshold', 'enabled', e.target.checked)}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        }
+                        label={<Typography variant="h6">CGPA Threshold Policy</Typography>}
+                        onClick={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                    />
+                </AccordionSummary>
+                <AccordionDetails>
+                    {renderNumericInput('cgpaThreshold', 'minimumCGPA', 'Minimum CGPA (0.0-10.0)', 0, 10, 0.1, "0.01")}
+                    {renderNumericInput('cgpaThreshold', 'highSalaryThreshold', 'High Salary Threshold Amount', 0, 5000000, 100000)}
+                </AccordionDetails>
+            </Accordion>
 
             {/* Placement Percentage Policy */}
-            <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>Placement Percentage Policy</Typography>
-                <Grid container spacing={2} alignItems="center">
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <FormControlLabel
-                            control={<Switch checked={!!formData.placementPercentage?.enabled} onChange={(e) => handleSwitchChange('placementPercentage', 'enabled', e.target.checked)} />}
-                            label="Enable Policy"
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <TextField
-                            label="Target Percentage (0-100%)"
-                            type="number"
-                            fullWidth
-                            value={formData.placementPercentage?.targetPercentage ?? ''}
-                            onChange={(e) => handleNumberChange('placementPercentage', 'targetPercentage', e.target.value)}
-                            disabled={!formData.placementPercentage?.enabled}
-                            InputProps={{ inputProps: { min: 0, max: 100, step: "0.1" } }}
-                            InputLabelProps={{ shrink: true }}
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 4 }}>
-                        <Slider
-                            value={typeof formData.placementPercentage?.targetPercentage === 'number' ? formData.placementPercentage.targetPercentage : 0}
-                            onChange={(event, newValue) => handleSliderChange('placementPercentage', 'targetPercentage', newValue)}
-                            aria-labelledby="target-percentage-slider"
-                            valueLabelDisplay="auto"
-                            step={1}
-                            marks
-                            min={0}
-                            max={100}
-                            disabled={!formData.placementPercentage?.enabled}
-                        />
-                    </Grid>
-                </Grid>
-            </Paper>
+            <Accordion expanded={expanded === 'placementPercentage'} onChange={handleAccordionChange('placementPercentage')} sx={{ mb: 2 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={!!formData.placementPercentage?.enabled}
+                                onChange={(e) => handleSwitchChange('placementPercentage', 'enabled', e.target.checked)}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        }
+                        label={<Typography variant="h6">Placement Percentage Policy</Typography>}
+                        onClick={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                    />
+                </AccordionSummary>
+                <AccordionDetails>
+                    {renderNumericInput('placementPercentage', 'targetPercentage', 'Target Percentage (0-100%)', 0, 100, 1, "0.1")}
+                </AccordionDetails>
+            </Accordion>
 
             {/* Offer Category Policy */}
-            <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-                <Typography variant="h6" gutterBottom>Offer Category Policy</Typography>
-                <Grid container spacing={2} alignItems="flex-start">
-                    <Grid size={{ xs: 12, md: 12 }}>
-                        <FormControlLabel
-                            control={<Switch checked={!!formData.offerCategory?.enabled} onChange={(e) => handleSwitchChange('offerCategory', 'enabled', e.target.checked)} />}
-                            label="Enable Policy"
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                        <TextField
-                            label="L1 Threshold (Highest Tier)"
-                            type="number"
-                            fullWidth
-                            value={formData.offerCategory?.l1ThresholdAmount ?? ''}
-                            onChange={(e) => handleNumberChange('offerCategory', 'l1ThresholdAmount', e.target.value)}
-                            disabled={!formData.offerCategory?.enabled}
-                            InputLabelProps={{ shrink: true }}
-                            sx={{ mb: 1 }}
-                        />
-                        <Slider
-                            value={typeof formData.offerCategory?.l1ThresholdAmount === 'number' ? formData.offerCategory.l1ThresholdAmount : 0}
-                            onChange={(event, newValue) => handleSliderChange('offerCategory', 'l1ThresholdAmount', newValue)}
-                            aria-labelledby="l1-threshold-slider"
-                            valueLabelDisplay="auto"
-                            step={100000}
-                            marks
-                            min={0}
-                            max={5000000}
-                            disabled={!formData.offerCategory?.enabled}
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-                        <TextField
-                            label="L2 Threshold (Middle Tier)"
-                            type="number"
-                            fullWidth
-                            value={formData.offerCategory?.l2ThresholdAmount ?? ''}
-                            onChange={(e) => handleNumberChange('offerCategory', 'l2ThresholdAmount', e.target.value)}
-                            disabled={!formData.offerCategory?.enabled}
-                            InputLabelProps={{ shrink: true }}
-                            sx={{ mb: 1 }}
-                        />
-                        <Slider
-                            value={typeof formData.offerCategory?.l2ThresholdAmount === 'number' ? formData.offerCategory.l2ThresholdAmount : 0}
-                            onChange={(event, newValue) => handleSliderChange('offerCategory', 'l2ThresholdAmount', newValue)}
-                            aria-labelledby="l2-threshold-slider"
-                            valueLabelDisplay="auto"
-                            step={100000}
-                            marks
-                            min={0}
-                            max={3000000}
-                            disabled={!formData.offerCategory?.enabled}
-                        />
-                    </Grid>
-                    <Grid size={{ xs: 12, md: 12, lg: 4 }}>
-                        <TextField
-                            label="Required Hike % for L2"
-                            type="number"
-                            fullWidth
-                            value={formData.offerCategory?.requiredHikePercentage ?? ''}
-                            onChange={(e) => handleNumberChange('offerCategory', 'requiredHikePercentage', e.target.value)}
-                            disabled={!formData.offerCategory?.enabled}
-                            InputProps={{ inputProps: { min: 0, step: "1" } }}
-                            InputLabelProps={{ shrink: true }}
-                            sx={{ mb: 1 }}
-                        />
-                        <Slider
-                            value={typeof formData.offerCategory?.requiredHikePercentage === 'number' ? formData.offerCategory.requiredHikePercentage : 0}
-                            onChange={(event, newValue) => handleSliderChange('offerCategory', 'requiredHikePercentage', newValue)}
-                            aria-labelledby="hike-percentage-slider"
-                            valueLabelDisplay="auto"
-                            step={1}
-                            marks
-                            min={0}
-                            max={100}
-                            disabled={!formData.offerCategory?.enabled}
-                        />
-                    </Grid>
-                </Grid>
-            </Paper>
+            <Accordion expanded={expanded === 'offerCategory'} onChange={handleAccordionChange('offerCategory')} sx={{ mb: 2 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={!!formData.offerCategory?.enabled}
+                                onChange={(e) => handleSwitchChange('offerCategory', 'enabled', e.target.checked)}
+                                onClick={(e) => e.stopPropagation()}
+                            />
+                        }
+                        label={<Typography variant="h6">Offer Category Policy</Typography>}
+                        onClick={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
+                    />
+                </AccordionSummary>
+                <AccordionDetails>
+                    {renderNumericInput('offerCategory', 'l1ThresholdAmount', 'L1 Threshold (Highest Tier)', 0, 5000000, 100000)}
+                    {renderNumericInput('offerCategory', 'l2ThresholdAmount', 'L2 Threshold (Middle Tier)', 0, 3000000, 100000)}
+                    {renderNumericInput('offerCategory', 'requiredHikePercentage', 'Required Hike % for L2', 0, 100, 1)}
+                </AccordionDetails>
+            </Accordion>
 
             <Button
                 type="submit"

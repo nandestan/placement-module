@@ -13,7 +13,8 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// ConfigurePoliciesHandler handles POST requests to update policy configurations.
+// ConfigurePoliciesHandler accepts a POST request with a new policy configuration,
+// updates the active policy in storage, and returns the updated configuration.
 func ConfigurePoliciesHandler(w http.ResponseWriter, r *http.Request) {
 	var newConfig models.PolicyConfig
 	decoder := json.NewDecoder(r.Body)
@@ -27,13 +28,14 @@ func ConfigurePoliciesHandler(w http.ResponseWriter, r *http.Request) {
 	storage.PolicyConfigMutex.Unlock()
 
 	log.Printf("Policy configuration updated: %+v\n", newConfig)
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(newConfig)
 }
 
-// CheckEligibilityHandler handles POST requests to check a student's eligibility for a company.
+// CheckEligibilityHandler accepts a POST request with StudentID and CompanyID,
+// checks the student's eligibility for the company, and returns the eligibility result.
 func CheckEligibilityHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
@@ -41,7 +43,7 @@ func CheckEligibilityHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		StudentID int `json:"studentId"`
+		StudentID int    `json:"studentId"`
 		CompanyID string `json:"companyId"`
 	}
 	decoder := json.NewDecoder(r.Body)
@@ -52,6 +54,7 @@ func CheckEligibilityHandler(w http.ResponseWriter, r *http.Request) {
 
 	var student models.Student
 	studentFound := false
+	// Note: Iterating through all students here. For larger datasets, a map or indexed lookup would be more efficient.
 	for _, s := range storage.Students {
 		if s.ID == req.StudentID {
 			student = s
@@ -77,7 +80,7 @@ func CheckEligibilityHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// GetPoliciesHandler handles GET requests to retrieve the current policy configurations.
+// GetPoliciesHandler handles GET requests to retrieve the current active policy configuration.
 func GetPoliciesHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
@@ -93,28 +96,32 @@ func GetPoliciesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAllStudentsHandler returns a list of all students.
+// In a production system, pagination and filtering capabilities would be important here.
 func GetAllStudentsHandler(w http.ResponseWriter, r *http.Request) {
-	// In a real application, you might have pagination or filtering here.
 	studentsToReturn := storage.Students
 	if studentsToReturn == nil {
-		studentsToReturn = []models.Student{} // Return empty slice if nil, to ensure valid JSON array
+		studentsToReturn = []models.Student{} // Ensure a valid JSON array (empty) is returned instead of null.
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(studentsToReturn)
 }
 
-// GetStudentByIDHandler returns a single student by their ID.
+// GetStudentByIDHandler retrieves and returns a single student by their ID from the URL path.
 func GetStudentByIDHandler(w http.ResponseWriter, r *http.Request) {
 	studentIDStr := chi.URLParam(r, "studentID")
 	studentID, err := strconv.Atoi(studentIDStr)
 	if err != nil {
-		http.Error(w, "Invalid student ID format", http.StatusBadRequest)
+		http.Error(w, "Invalid student ID format in URL path", http.StatusBadRequest)
 		return
 	}
 
 	var student models.Student
 	found := false
+	// RLock for reading Students data.
+	// Consider a more granular lock if Students and PolicyConfig are frequently updated independently
+	// or if student data becomes very large and this linear scan becomes a bottleneck.
+	storage.PolicyConfigMutex.RLock()
 	for _, s := range storage.Students {
 		if s.ID == studentID {
 			student = s
@@ -122,9 +129,10 @@ func GetStudentByIDHandler(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+	storage.PolicyConfigMutex.RUnlock()
 
 	if !found {
-		http.Error(w, "Student not found", http.StatusNotFound)
+		http.Error(w, "Student not found for ID: "+studentIDStr, http.StatusNotFound)
 		return
 	}
 
@@ -133,21 +141,91 @@ func GetStudentByIDHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAllCompaniesHandler returns a list of all companies.
+// Companies are stored in a map; this handler converts it to a slice for JSON output.
 func GetAllCompaniesHandler(w http.ResponseWriter, r *http.Request) {
-	storage.PolicyConfigMutex.RLock() // Use the same mutex for safety, or a dedicated one for companies if needed
+	storage.PolicyConfigMutex.RLock() // Using PolicyConfigMutex for simplicity; a dedicated mutex for Companies could be used.
 	allCompaniesMap := storage.Companies
 	storage.PolicyConfigMutex.RUnlock()
 
-	// Convert map to slice for consistent JSON array output
+	// Convert map to slice for consistent JSON array output.
 	allCompaniesSlice := make([]models.Company, 0, len(allCompaniesMap))
 	for _, company := range allCompaniesMap {
 		allCompaniesSlice = append(allCompaniesSlice, company)
 	}
 
 	if allCompaniesSlice == nil {
-		allCompaniesSlice = []models.Company{} // Ensure valid JSON array
+		allCompaniesSlice = []models.Company{} // Ensure valid JSON array.
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(allCompaniesSlice)
+}
+
+// GetEligibleStudentsForCompanyHandler retrieves all students eligible for a specific company.
+// The company ID is taken from the URL path.
+func GetEligibleStudentsForCompanyHandler(w http.ResponseWriter, r *http.Request) {
+	companyID := chi.URLParam(r, "companyID")
+	if companyID == "" {
+		http.Error(w, "Company ID is required in URL path", http.StatusBadRequest)
+		return
+	}
+
+	company, companyExists := storage.Companies[companyID]
+	if !companyExists {
+		http.Error(w, "Company not found for ID: "+companyID, http.StatusNotFound)
+		return
+	}
+
+	eligibleStudents := []models.Student{}
+	// Iterate through all students and check eligibility for the given company.
+	// The Students slice is read here. PolicyConfig is read within PerformEligibilityCheck (which handles its own locking).
+	// If student data modification becomes frequent and concurrent, locking storage.Students might be needed here.
+	for _, student := range storage.Students {
+		result := eligibility.PerformEligibilityCheck(student, company)
+		if result.IsEligible {
+			eligibleStudents = append(eligibleStudents, student)
+		}
+	}
+
+	if eligibleStudents == nil {
+		eligibleStudents = []models.Student{} // Ensure valid JSON array.
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(eligibleStudents)
+}
+
+// CreateStudentHandler handles POST requests to create a new student.
+// It decodes student data from the JSON body, assigns a new ID,
+// appends the student to in-memory storage, updates placement stats, and returns the created student.
+func CreateStudentHandler(w http.ResponseWriter, r *http.Request) {
+	var newStudent models.Student
+	if err := json.NewDecoder(r.Body).Decode(&newStudent); err != nil {
+		http.Error(w, "Invalid JSON payload: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Basic validation for student name.
+	if newStudent.FullName == "" {
+		http.Error(w, "Student name cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+	storage.PolicyConfigMutex.Lock() // Lock to safely modify shared Students slice and generate ID.
+	defer storage.PolicyConfigMutex.Unlock()
+
+	// Assign a new ID - simple increment for this example.
+	// In a production system, use a more robust ID generation strategy (e.g., UUID or database auto-increment).
+	if len(storage.Students) > 0 {
+		newStudent.ID = storage.Students[len(storage.Students)-1].ID + 1
+	} else {
+		newStudent.ID = 1 // First student in the system.
+	}
+
+	storage.Students = append(storage.Students, newStudent)
+	storage.UpdatePlacementStats() // Crucial to update stats after adding a new student.
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(newStudent)
 }
