@@ -1,0 +1,77 @@
+[
+  {
+    "id": "C001",
+    "name": "Google",
+    "offeredSalary": 2800000
+  },
+  {
+    "id": "C002",
+    "name": "Microsoft",
+    "offeredSalary": 2500000
+  },
+  {
+    "id": "C003",
+    "name": "Meta (Facebook)",
+    "offeredSalary": 2600000
+  },
+  {
+    "id": "C004",
+    "name": "Amazon",
+    "offeredSalary": 2200000
+  },
+  {
+    "id": "C005",
+    "name": "Apple",
+    "offeredSalary": 3000000
+  },
+  {
+    "id": "C006",
+    "name": "Netflix",
+    "offeredSalary": 2400000
+  },
+  {
+    "id": "C007",
+    "name": "Salesforce",
+    "offeredSalary": 2000000
+  },
+  {
+    "id": "C008",
+    "name": "Adobe",
+    "offeredSalary": 1800000
+  },
+  {
+    "id": "C009",
+    "name": "Oracle",
+    "offeredSalary": 1900000
+  },
+  {
+    "id": "C010",
+    "name": "Intel",
+    "offeredSalary": 1700000
+  },
+  {
+    "id": "C011",
+    "name": "Nvidia",
+    "offeredSalary": 2900000
+  },
+  {
+    "id": "C012",
+    "name": "VMware",
+    "offeredSalary": 2100000
+  },
+  {
+    "id": "C013",
+    "name": "Infosys",
+    "offeredSalary": 1500000
+  },
+  {
+    "id": "C014",
+    "name": "TCS (Tata Consultancy Services)",
+    "offeredSalary": 1400000
+  },
+  {
+    "id": "C015",
+    "name": "Wipro",
+    "offeredSalary": 1300000
+  }
+]

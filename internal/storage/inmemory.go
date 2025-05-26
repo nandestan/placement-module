@@ -15,11 +15,7 @@ var (
 	ActivePolicyConfig models.PolicyConfig
 	PolicyConfigMutex sync.RWMutex
 	Students           []models.Student
-	Companies = map[string]models.Company{
-		"C001": {ID: "C001", Name: "Tech Innovators", OfferedSalary: 1500000},
-		"C002": {ID: "C002", Name: "Global Corp", OfferedSalary: 1000000},
-		"C003": {ID: "C003", Name: "Acme Corp", OfferedSalary: 3000000},
-	}
+	Companies          []models.Company
 
 	// Cached placement statistics
 	PlacementStatsMutex       sync.RWMutex
@@ -29,8 +25,9 @@ var (
 
 func init() {
 	loadStudentsFromFile("internal/data/students.json")
+	loadCompaniesFromFile("internal/data/company.json")
 	initializeDefaultPolicies()
-	UpdatePlacementStats() // Crucial to initialize stats after loading students and setting default policies.
+	UpdatePlacementStats()
 }
 
 func initializeDefaultPolicies() {
@@ -67,6 +64,44 @@ func initializeDefaultPolicies() {
 		}{Enabled: true, L1ThresholdAmount: 2000000, L2ThresholdAmount: 1000000, RequiredHikePercentage: 30}, // L1 > 20L, L2 > 10L, L2 needs 30% hike.
 	}
 	log.Println("Default policy configuration initialized.")
+}
+
+// loadCompaniesFromFile attempts to load company data from a JSON file.
+// Similar to loadStudentsFromFile, it tries paths relative to project root and parent directory.
+func loadCompaniesFromFile(filePathFromProjectRoot string) {
+	wd, err := os.Getwd()
+	if err != nil {
+		log.Printf("Warning: Could not get current working directory: %v. Company data might not load.", err)
+		Companies = []models.Company{}
+		return
+	}
+
+	absPath := filepath.Join(wd, filePathFromProjectRoot)
+
+	if _, err := os.Stat(absPath); os.IsNotExist(err) {
+		altPath := filepath.Join(wd, "..", filePathFromProjectRoot) 
+		if _, errStatAlt := os.Stat(altPath); errStatAlt == nil {
+			absPath = altPath
+		} else {
+			log.Printf("Warning: Could not find companies data file at '%s' or '%s'. Initializing with empty company list.", absPath, altPath)
+			Companies = []models.Company{}
+			return
+		}
+	}
+
+	data, err := ioutil.ReadFile(absPath)
+	if err != nil {
+		log.Printf("Warning: Could not read companies data file '%s': %v. Initializing with empty company list.", absPath, err)
+		Companies = []models.Company{}
+		return
+	}
+
+	if err := json.Unmarshal(data, &Companies); err != nil {
+		log.Printf("Warning: Could not unmarshal companies data from '%s': %v. Initializing with empty company list.", absPath, err)
+		Companies = []models.Company{}
+		return
+	}
+	log.Printf("Successfully loaded %d companies from %s", len(Companies), absPath)
 }
 
 // loadStudentsFromFile attempts to load student data from a JSON file.

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getStudents } from '../api/student'; // Ensure this path is correct
 import { Student } from '../interfaces/student';
@@ -12,6 +12,8 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import { Container, Box, TextField } from '@mui/material';
+import { formatToINR } from '../utils/formatting'; // Import the formatting utility
 
 const StudentListPage: React.FC = () => {
     const { data: students, isLoading, isError, error } = useQuery<Student[], Error>({
@@ -19,40 +21,62 @@ const StudentListPage: React.FC = () => {
         queryFn: getStudents,
     });
 
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredStudents = useMemo(() => {
+        if (!students) return [];
+        if (!searchTerm) return students;
+
+        return students.filter(student =>
+            student.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [students, searchTerm]);
+
     if (isLoading) {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80vh' }}>
                 <CircularProgress />
-            </div>
+            </Box>
         );
     }
 
     if (isError) {
-        return <Alert severity="error">Error fetching students: {error?.message}</Alert>;
+        return <Alert severity="error">Error fetching students: {error?.message || 'Unknown error'}</Alert>;
     }
 
     return (
-        <Paper elevation={3} sx={{ padding: 2, marginTop: 2 }}>
-            <Typography variant="h5" gutterBottom component="h2" sx={{ marginBottom: 2 }}>
+        <Container maxWidth="lg" sx={{ mt: 2 }}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ mb: 3 }}>
                 Students
             </Typography>
-            {students && students.length > 0 ? (
-                <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="students table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>ID</TableCell>
-                                <TableCell>Name</TableCell>
-                                <TableCell align="right">CGPA</TableCell>
-                                <TableCell>Companies Applied</TableCell>
-                                <TableCell>Dream Offer</TableCell>
-                                <TableCell>Dream Company</TableCell>
-                                <TableCell>Current Offer Category</TableCell>
-                                <TableCell>Placement Status</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {students.map((student) => (
+
+            <Box sx={{ mb: 2 }}>
+                <TextField
+                    fullWidth
+                    variant="outlined"
+                    label="Search Students by Name"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </Box>
+
+            <TableContainer component={Paper} elevation={3}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead sx={{ backgroundColor: 'primary.main' }}>
+                        <TableRow>
+                            <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }}>ID</TableCell>
+                            <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }}>Name</TableCell>
+                            <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }} align="right">CGPA</TableCell>
+                            <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }} align="right">Companies Applied</TableCell>
+                            <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }} align="right">Dream Offer</TableCell>
+                            <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }}>Dream Company</TableCell>
+                            <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }} align="right">Current Salary</TableCell>
+                            <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }}>Placement Status</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {filteredStudents && filteredStudents.length > 0 ? (
+                            filteredStudents.map((student) => (
                                 <TableRow
                                     key={student.id}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -62,20 +86,24 @@ const StudentListPage: React.FC = () => {
                                     </TableCell>
                                     <TableCell>{student.name}</TableCell>
                                     <TableCell align="right">{student.cgpa.toFixed(2)}</TableCell>
-                                    <TableCell>{student.companiesApplied}</TableCell>
-                                    <TableCell>{student.dreamOffer}</TableCell>
-                                    <TableCell>{student.dreamCompany}</TableCell>
-                                    <TableCell>{student.currentOfferCategory ? student.currentOfferCategory : '-'}</TableCell>
+                                    <TableCell align="right">{student.companiesApplied}</TableCell>
+                                    <TableCell align="right">{formatToINR(student.dreamOffer)}</TableCell>
+                                    <TableCell>{student.dreamCompany || '-'}</TableCell>
+                                    <TableCell align="right">{formatToINR(student.currentSalary)}</TableCell>
                                     <TableCell>{student.isPlaced ? 'Placed' : 'Not Placed'}</TableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            ) : (
-                <Typography>No students found.</Typography>
-            )}
-        </Paper>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={8} align="center">
+                                    {searchTerm ? 'No students match your search.' : 'No student data available.'}
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Container>
     );
 };
 

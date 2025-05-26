@@ -27,6 +27,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import { formatToINR } from '../utils/formatting';
 
 const EligibilityCheckerPage: React.FC = () => {
     const [selectedStudentId, setSelectedStudentId] = useState<string>('');
@@ -205,6 +206,12 @@ const EligibilityCheckerPage: React.FC = () => {
                 <Paper elevation={3} sx={{ padding: 3, marginTop: 4 }}>
                     <Typography variant="h5" gutterBottom component="h2">
                         Eligible Students for: {companies?.find(c => c.id === selectedCompanyId)?.name || 'Selected Company'}
+                        {/* Display offered salary of the selected company, formatted to INR */}
+                        {companies?.find(c => c.id === selectedCompanyId)?.offeredSalary !== undefined && (
+                            <Typography variant="subtitle1" component="span" sx={{ ml: 1, color: 'text.secondary' }}>
+                                (Offered Salary: {formatToINR(companies?.find(c => c.id === selectedCompanyId)?.offeredSalary)})
+                            </Typography>
+                        )}
                     </Typography>
                     {isLoadingEligibleStudents && <CircularProgress />}
                     {isErrorEligibleStudents && (
@@ -240,7 +247,7 @@ const EligibilityCheckerPage: React.FC = () => {
                                             <TableCell>{student.name}</TableCell>
                                             <TableCell align="right">{student.cgpa.toFixed(2)}</TableCell>
                                             <TableCell>{student.isPlaced ? 'Yes' : 'No'}</TableCell>
-                                            <TableCell align="right">{student.currentSalary > 0 ? student.currentSalary.toLocaleString() : 'N/A'}</TableCell>
+                                            <TableCell align="right">{formatToINR(student.currentSalary)}</TableCell>
                                             <TableCell align="right">{student.companiesApplied}</TableCell>
                                         </TableRow>
                                     ))}

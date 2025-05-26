@@ -14,13 +14,13 @@ import {
 const DocumentationPage: React.FC = () => {
     return (
         <Container maxWidth="lg" sx={{ my: 4 }}>
-            <Paper elevation={3} sx={{ p: 4 }}>
-                <Typography variant="h3" component="h1" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>
+            <Paper elevation={3} sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
+                <Typography variant="h3" component="h1" gutterBottom sx={{ textAlign: 'center', mb: 4 }}>
                     College Placement Policy System - Documentation
                 </Typography>
 
-                <Box sx={{ mb: 4 }}>
-                    <Typography variant="h4" component="h2" gutterBottom>
+                <Box sx={{ mb: 5 }}>
+                    <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 3, mb: 2 }}>
                         1. Project Overview
                     </Typography>
                     <Typography variant="h6" component="h3" gutterBottom>
@@ -37,8 +37,8 @@ const DocumentationPage: React.FC = () => {
                     </Typography>
                 </Box>
 
-                <Box sx={{ mb: 4 }}>
-                    <Typography variant="h4" component="h2" gutterBottom>
+                <Box sx={{ mb: 5 }}>
+                    <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 3, mb: 2 }}>
                         Target Users & Benefits
                     </Typography>
                     <Typography variant="h6" component="h3" gutterBottom>
@@ -60,14 +60,14 @@ const DocumentationPage: React.FC = () => {
                     </List>
                 </Box>
 
-                <Divider sx={{ my: 4 }} />
+                <Divider sx={{ my: 5 }} />
 
-                <Box sx={{ mb: 4 }}>
-                    <Typography variant="h4" component="h2" gutterBottom>
+                <Box sx={{ mb: 5 }}>
+                    <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 3 }}>
                         2. Functional Requirements
                     </Typography>
 
-                    <Typography variant="h5" component="h3" gutterBottom sx={{ mt: 3, mb: 2 }}>
+                    <Typography variant="h5" component="h3" gutterBottom sx={{ mt: 4, mb: 2 }}>
                         2.1 Policy Configuration Module
                     </Typography>
                     <Typography paragraph>
@@ -109,30 +109,30 @@ const DocumentationPage: React.FC = () => {
                             "L3 placed students: Can apply based on other active policies."
                         ]
                     }].map((policy, index) => (
-                        <Box key={index} sx={{ mb: 3, p: 2, border: '1px solid #eee', borderRadius: '4px' }}>
+                        <Box key={index} sx={{ mb: 3, p: { xs: 2, sm: 3 }, border: '1px solid #e0e0e0', borderRadius: '8px', backgroundColor: '#fafafa' }}>
                             <Typography variant="h6" component="h4" gutterBottom>{policy.title}</Typography>
                             <Typography variant="subtitle1" gutterBottom><strong>Description:</strong> {policy.description}</Typography>
-                            <Typography variant="subtitle1" gutterBottom><strong>Configuration:</strong></Typography>
+                            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold', mt: 1.5 }}>Configuration:</Typography>
                             <List dense disablePadding sx={{ pl: 2 }}>
-                                {policy.config.map((item, i) => <ListItem key={i} disableGutters sx={{ py: 0 }}><ListItemText primary={`• ${item}`} /></ListItem>)}
+                                {policy.config.map((item, i) => <ListItem key={i} disableGutters sx={{ py: 0.25 }}><ListItemText primary={`• ${item}`} /></ListItem>)}
                             </List>
-                            <Typography variant="subtitle1" gutterBottom sx={{ mt: 1 }}><strong>Business Rule(s):</strong></Typography>
-                            {policy.businessRule && <Typography paragraph sx={{ pl: 2 }}>• {policy.businessRule}</Typography>}
+                            <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold', mt: 1.5 }}>Business Rule(s):</Typography>
+                            {policy.businessRule && <Typography paragraph sx={{ pl: 2, mb: 0 }}>• {policy.businessRule}</Typography>}
                             {policy.businessRules && (
                                 <List dense disablePadding sx={{ pl: 2 }}>
-                                    {policy.businessRules.map((item, i) => <ListItem key={i} disableGutters sx={{ py: 0 }}><ListItemText primary={`• ${item}`} /></ListItem>)}
+                                    {policy.businessRules.map((item, i) => <ListItem key={i} disableGutters sx={{ py: 0.25 }}><ListItemText primary={`• ${item}`} /></ListItem>)}
                                 </List>
                             )}
                         </Box>
                     ))}
                 </Box>
 
-                <Divider sx={{ my: 4 }} />
+                <Divider sx={{ my: 5 }} />
 
                 <Grid container spacing={4}>
                     <Grid size={{ xs: 12, md: 6 }}>
                         <Box sx={{ mb: 4 }}>
-                            <Typography variant="h5" component="h3" gutterBottom>
+                            <Typography variant="h5" component="h3" gutterBottom sx={{ mt: 3 }}>
                                 2.2 Student Data
                             </Typography>
                             <Typography paragraph>
@@ -146,7 +146,7 @@ const DocumentationPage: React.FC = () => {
                         </Box>
 
                         <Box sx={{ mb: 4 }}>
-                            <Typography variant="h5" component="h3" gutterBottom>
+                            <Typography variant="h5" component="h3" gutterBottom sx={{ mt: 3 }}>
                                 2.3 Company Information
                             </Typography>
                             <Typography paragraph>
@@ -157,7 +157,7 @@ const DocumentationPage: React.FC = () => {
 
                     <Grid size={{ xs: 12, md: 6 }}>
                         <Box sx={{ mb: 4 }}>
-                            <Typography variant="h5" component="h3" gutterBottom>
+                            <Typography variant="h5" component="h3" gutterBottom sx={{ mt: 3 }}>
                                 2.4 Eligibility Engine Module
                             </Typography>
                             <Typography variant="h6" component="h4" gutterBottom sx={{ mt: 2 }}>
@@ -182,7 +182,7 @@ const DocumentationPage: React.FC = () => {
                         </Box>
 
                         <Box sx={{ mb: 4 }}>
-                            <Typography variant="h5" component="h3" gutterBottom>
+                            <Typography variant="h5" component="h3" gutterBottom sx={{ mt: 3 }}>
                                 2.4.3 Output Requirements
                             </Typography>
                             <Typography paragraph>
@@ -197,10 +197,10 @@ const DocumentationPage: React.FC = () => {
                     </Grid>
                 </Grid>
 
-                <Divider sx={{ my: 4 }} />
+                <Divider sx={{ my: 5 }} />
 
                 <Box sx={{ mb: 4 }}>
-                    <Typography variant="h4" component="h2" gutterBottom>
+                    <Typography variant="h4" component="h2" gutterBottom sx={{ mt: 3 }}>
                         3. Sample Policy Interaction Scenarios
                     </Typography>
                     <Typography paragraph>
@@ -209,30 +209,35 @@ const DocumentationPage: React.FC = () => {
                     <List dense>
                         <ListItem>
                             <ListItemText
+                                primaryTypographyProps={{ fontWeight: 'medium' }}
                                 primary="Dream Offer + CGPA Test:"
-                                secondary="A student with a CGPA of 6.5 and a dream offer of ₹15L, currently placed at ₹8L, applies to a company offering ₹15L. If a CGPA policy requires 7.0 for offers above ₹12L, the student might be eligible if the Dream Offer policy overrides the CGPA block for dream offers, or ineligible if the CGPA policy is a hard block for high offers."
+                                secondary="A student with a CGPA of 6.5 and a dream offer of ₹15,00,000, currently placed at ₹8,00,000, applies to a company offering ₹15,00,000. If a CGPA policy requires 7.0 for offers above ₹12,00,000, the student might be eligible if the Dream Offer policy overrides the CGPA block for dream offers, or ineligible if the CGPA policy is a hard block for high offers."
                             />
                         </ListItem>
                         <ListItem>
                             <ListItemText
+                                primaryTypographyProps={{ fontWeight: 'medium' }}
                                 primary="Category + Max Companies Test:"
-                                secondary="An L2 placed student (e.g., salary ₹25L) applied to 2 companies (max allowed 3). If they apply to a company offering ₹30L (which is less than the required hike percentage over their current salary), they would be not eligible due to insufficient hike, even if they are within the max companies limit."
+                                secondary="An L2 placed student (e.g., salary ₹25,00,000) applied to 2 companies (max allowed 3). If they apply to a company offering ₹30,00,000 (which is less than the required hike percentage over their current salary), they would be not eligible due to insufficient hike, even if they are within the max companies limit."
                             />
                         </ListItem>
                         <ListItem>
                             <ListItemText
+                                primaryTypographyProps={{ fontWeight: 'medium' }}
                                 primary="Placement Percentage Test:"
                                 secondary="If current campus placement is 75% and the policy threshold is 90%, a placed student wanting to apply for another company would be not eligible due to the overall placement percentage being below the target."
                             />
                         </ListItem>
                         <ListItem>
                             <ListItemText
+                                primaryTypographyProps={{ fontWeight: 'medium' }}
                                 primary="Multiple Qualifying Policies:"
                                 secondary="A student might qualify for a company under both their Dream Company policy and their Dream Offer policy. The system should list both as reasons."
                             />
                         </ListItem>
                         <ListItem>
                             <ListItemText
+                                primaryTypographyProps={{ fontWeight: 'medium' }}
                                 primary="Policy Conflicts:"
                                 secondary="If a student is blocked by one policy (e.g., Maximum Companies) but allowed by an overriding policy (e.g., Dream Company), the system should gracefully handle this, clearly stating the overriding reason for eligibility."
                             />
@@ -245,4 +250,4 @@ const DocumentationPage: React.FC = () => {
     );
 };
 
-export default DocumentationPage; 
+export default DocumentationPage;

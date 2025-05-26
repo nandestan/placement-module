@@ -17,17 +17,59 @@ import StudentListPage from './pages/student-list';
 import EligibilityCheckerPage from './pages/eligibility-checker';
 import CreateStudentPage from './pages/CreateStudentPage';
 import DocumentationPage from './pages/DocumentationPage';
+import CompanyListPage from './pages/CompanyListPage';
 
 // Define a custom MUI theme for consistent styling throughout the application.
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2', // Example primary color
+      main: '#FFC300', // Honey Yellow
+      contrastText: '#000000', // Black text for good contrast on yellow
     },
     secondary: {
-      main: '#dc004e', // Example secondary color
+      main: '#0D47A1', // Deep Blue for contrast and secondary actions
+      contrastText: '#FFFFFF', // White text for good contrast on blue
     },
+    background: {
+      default: '#f5f5f5', // A light grey background for the body
+      paper: '#ffffff',   // White for paper elements like cards, tables
+    }
   },
+  typography: {
+    fontFamily: 'Roboto, Arial, sans-serif',
+    h1: { fontSize: '2.5rem', fontWeight: 500 },
+    h2: { fontSize: '2rem', fontWeight: 500 },
+    h3: { fontSize: '1.75rem', fontWeight: 500 },
+    h4: { fontSize: '1.5rem', fontWeight: 500 },
+    h5: { fontSize: '1.25rem', fontWeight: 500 },
+    h6: { fontSize: '1.1rem', fontWeight: 500 },
+  },
+  components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#FFC300', // Honey Yellow for AppBar
+          color: '#000000', // Black text on AppBar
+        }
+      }
+    },
+    MuiButton: {
+      styleOverrides: {
+        containedPrimary: {
+          color: '#000000', // Ensure text on primary buttons is black
+          "&:hover": {
+            backgroundColor: '#ebb500', // Darker yellow on hover
+          }
+        },
+        containedSecondary: {
+          color: '#FFFFFF', // Ensure text on secondary buttons is white
+          "&:hover": {
+            backgroundColor: '#0a367e', // Darker blue on hover
+          }
+        }
+      }
+    }
+  }
 });
 
 // App is the root component that sets up the overall application structure,
@@ -46,6 +88,7 @@ const App: React.FC = () => {
           <Button color="inherit" component={Link} to="/">Home</Button>
           <Button color="inherit" component={Link} to="/student-list">Students</Button>
           <Button color="inherit" component={Link} to="/students/create">Create Student</Button>
+          <Button color="inherit" component={Link} to="/companies">Companies</Button>
           <Button color="inherit" component={Link} to="/policies">Policy Editor</Button>
           <Button color="inherit" component={Link} to="/eligibility-check">Eligibility Checker</Button>
           <Button color="inherit" component={Link} to="/documentation">Documentation</Button>
@@ -58,6 +101,7 @@ const App: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/student-list" element={<StudentListPage />} />
           <Route path="/students/create" element={<CreateStudentPage />} />
+          <Route path="/companies" element={<CompanyListPage />} />
           <Route path="/policies" element={<PolicyEditorPage />} />
           <Route path="/eligibility-check" element={<EligibilityCheckerPage />} />
           <Route path="/documentation" element={<DocumentationPage />} />

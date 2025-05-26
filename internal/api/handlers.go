@@ -63,13 +63,21 @@ func CheckEligibilityHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	company, companyExists := storage.Companies[req.CompanyID]
+	var company models.Company
+	companyFound := false
+	for _, c := range storage.Companies { // Iterate over slice
+		if c.ID == req.CompanyID {
+			company = c
+			companyFound = true
+			break
+		}
+	}
 
 	if !studentFound {
 		http.Error(w, "Student not found", http.StatusNotFound)
 		return
 	}
-	if !companyExists {
+	if !companyFound { // Updated check
 		http.Error(w, "Company not found", http.StatusNotFound)
 		return
 	}
@@ -143,22 +151,14 @@ func GetStudentByIDHandler(w http.ResponseWriter, r *http.Request) {
 // GetAllCompaniesHandler returns a list of all companies.
 // Companies are stored in a map; this handler converts it to a slice for JSON output.
 func GetAllCompaniesHandler(w http.ResponseWriter, r *http.Request) {
-	storage.PolicyConfigMutex.RLock() // Using PolicyConfigMutex for simplicity; a dedicated mutex for Companies could be used.
-	allCompaniesMap := storage.Companies
-	storage.PolicyConfigMutex.RUnlock()
-
-	// Convert map to slice for consistent JSON array output.
-	allCompaniesSlice := make([]models.Company, 0, len(allCompaniesMap))
-	for _, company := range allCompaniesMap {
-		allCompaniesSlice = append(allCompaniesSlice, company)
-	}
-
-	if allCompaniesSlice == nil {
-		allCompaniesSlice = []models.Company{} // Ensure valid JSON array.
+	// Directly use the Companies slice, which is already loaded from JSON.
+	companiesToReturn := storage.Companies
+	if companiesToReturn == nil {
+		companiesToReturn = []models.Company{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(allCompaniesSlice)
+	json.NewEncoder(w).Encode(companiesToReturn)
 }
 
 // GetEligibleStudentsForCompanyHandler retrieves all students eligible for a specific company.
@@ -170,8 +170,17 @@ func GetEligibleStudentsForCompanyHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	company, companyExists := storage.Companies[companyID]
-	if !companyExists {
+	var company models.Company
+	companyFound := false
+	for _, c := range storage.Companies { // Iterate over slice
+		if c.ID == companyID {
+			company = c
+			companyFound = true
+			break
+		}
+	}
+
+	if !companyFound { // Updated check, now using companyFound
 		http.Error(w, "Company not found for ID: "+companyID, http.StatusNotFound)
 		return
 	}
