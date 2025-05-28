@@ -28,6 +28,12 @@ export const createStudent = async (studentData: Omit<Student, 'id'>): Promise<S
     return data;
 };
 
+// Updates an existing student by their ID.
+export const updateStudent = async (id: number, studentData: Omit<Student, 'id'>): Promise<Student> => {
+    const { data } = await apiClient.put<Student>(`/students/${id}`, studentData);
+    return data;
+};
+
 // You can add more API functions here for policies, eligibility checks, etc.
 // For example:
 // interface EligibilityRequest {

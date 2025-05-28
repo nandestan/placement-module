@@ -139,9 +139,9 @@ const DocumentationPage: React.FC = () => {
                                 The software utilizes student information structured as follows:
                             </Typography>
                             <List dense>
-                                <ListItem><ListItemText primary="Basic Information: Unique Student ID, Full Name, CGPA (0.0-10.0 scale)" /></ListItem>
-                                <ListItem><ListItemText primary="Placement Status: Is Placed (Yes/No), Current Salary (if placed), Number of companies already applied to" /></ListItem>
-                                <ListItem><ListItemText primary="Preferences: Dream Offer Amount, Dream Company Name" /></ListItem>
+                                <ListItem><ListItemText primary="1. Basic Information: Unique Student ID, Full Name, CGPA (0.0-10.0 scale)" /></ListItem>
+                                <ListItem><ListItemText primary="2. Placement Status: Is Placed (Yes/No), Current Salary (if placed), Number of companies already applied to" /></ListItem>
+                                <ListItem><ListItemText primary="3. Preferences: Dream Offer Amount, Dream Company Name" /></ListItem>
                             </List>
                         </Box>
 
@@ -164,10 +164,10 @@ const DocumentationPage: React.FC = () => {
                                 2.4.1 Core Logic Requirements:
                             </Typography>
                             <List dense>
-                                <ListItem><ListItemText primary="Process all active policies simultaneously." /></ListItem>
-                                <ListItem><ListItemText primary="Handle policy conflicts intelligently (e.g., Dream Company override)." /></ListItem>
-                                <ListItem><ListItemText primary="Provide detailed reasoning for each decision." /></ListItem>
-                                <ListItem><ListItemText primary="Support real-time policy changes." /></ListItem>
+                                <ListItem><ListItemText primary="1. Process all active policies simultaneously." /></ListItem>
+                                <ListItem><ListItemText primary="2. Handle policy conflicts intelligently (e.g., Dream Company override)." /></ListItem>
+                                <ListItem><ListItemText primary="3. Provide detailed reasoning for each decision." /></ListItem>
+                                <ListItem><ListItemText primary="4. Support real-time policy changes." /></ListItem>
                             </List>
                             <Typography variant="h6" component="h4" gutterBottom sx={{ mt: 2 }}>
                                 2.4.2 Decision Matrix (System Must):
@@ -189,9 +189,9 @@ const DocumentationPage: React.FC = () => {
                                 For each student-company combination, the system provides:
                             </Typography>
                             <List dense>
-                                <ListItem><ListItemText primary="Final eligibility status (Boolean)." /></ListItem>
-                                <ListItem><ListItemText primary="List of reasons supporting the decision." /></ListItem>
-                                <ListItem><ListItemText primary="Policy-specific details where applicable." /></ListItem>
+                                <ListItem><ListItemText primary="1. Final eligibility status (Boolean)." /></ListItem>
+                                <ListItem><ListItemText primary="2. List of reasons supporting the decision." /></ListItem>
+                                <ListItem><ListItemText primary="3. Policy-specific details where applicable." /></ListItem>
                             </List>
                         </Box>
                     </Grid>

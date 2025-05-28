@@ -3,26 +3,11 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { BrowserRouter } from 'react-router-dom';
-import CssBaseline from '@mui/material/CssBaseline';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
-// Create a client
 const queryClient = new QueryClient();
-
-// You can customize the theme later
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2', // Example primary color (Material Blue)
-    },
-    secondary: {
-      main: '#dc004e', // Example secondary color (Material Pink)
-    },
-  },
-});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -31,10 +16,7 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline /> {/* CssBaseline kickstarts an elegant, consistent, and simple baseline to build upon. */}
-          <App />
-        </ThemeProvider>
+        <App />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </BrowserRouter>

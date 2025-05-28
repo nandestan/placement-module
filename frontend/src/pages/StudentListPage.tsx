@@ -12,8 +12,10 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { Container, Box, TextField } from '@mui/material';
+import { Container, Box, TextField, IconButton, Tooltip } from '@mui/material';
 import { formatToINR } from '../utils/formatting'; // Import the formatting utility
+import { Link } from 'react-router-dom';
+import { Edit } from 'iconsax-react';
 
 const StudentListPage: React.FC = () => {
     const { data: students, isLoading, isError, error } = useQuery<Student[], Error>({
@@ -72,6 +74,7 @@ const StudentListPage: React.FC = () => {
                             <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }}>Dream Company</TableCell>
                             <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }} align="right">Current Salary</TableCell>
                             <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }}>Placement Status</TableCell>
+                            <TableCell sx={{ color: 'primary.contrastText', fontWeight: 'bold' }} align="center">Actions</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -91,11 +94,21 @@ const StudentListPage: React.FC = () => {
                                     <TableCell>{student.dreamCompany || '-'}</TableCell>
                                     <TableCell align="right">{formatToINR(student.currentSalary)}</TableCell>
                                     <TableCell>{student.isPlaced ? 'Placed' : 'Not Placed'}</TableCell>
+                                    <TableCell align="center">
+                                        <Tooltip title="Edit">
+                                            <IconButton
+                                                component={Link}
+                                                to={`/students/edit/${student.id}`}
+                                            >
+                                                <Edit size="18" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </TableCell>
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={8} align="center">
+                                <TableCell colSpan={9} align="center">
                                     {searchTerm ? 'No students match your search.' : 'No student data available.'}
                                 </TableCell>
                             </TableRow>

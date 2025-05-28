@@ -1,0 +1,182 @@
+# Understanding Go and Its Use in the College Placement Policy System
+
+This document provides an overview of the Go programming language (Golang) and explains how it's utilized in the backend of the College Placement Policy System project.
+
+## 1. Introduction to Go (Golang)
+
+Go is an open-source programming language designed at Google by Robert Griesemer, Rob Pike, and Ken Thompson. It was created to improve programming productivity in an era of multicore processors, networked machines, and large codebases.
+
+**Key Features and Strengths:**
+
+*   **Simplicity and Readability:** Go has a concise syntax, making it easy to learn and read. It intentionally omits many features of modern object-oriented languages to keep things simple.
+*   **Concurrency:** Go has built-in support for concurrent programming through **goroutines** (lightweight threads managed by the Go runtime) and **channels** (used for communication and synchronization between goroutines). While this project uses mutexes for basic concurrency control, Go's richer concurrency primitives are a major strength for more complex applications.
+*   **Performance:** Go is a compiled language. It compiles directly to machine code, resulting in fast execution speeds.
+*   **Static Typing:** Go is statically typed, meaning variable types are checked at compile time, which helps catch errors early. However, it often feels like a dynamically typed language due to features like type inference.
+*   **Garbage Collection:** Go features automatic memory management through a garbage collector, simplifying memory allocation and deallocation for developers.
+*   **Rich Standard Library:** Go comes with a powerful standard library that provides a wide range of functionalities, especially for networking, I/O, and text processing.
+*   **Excellent Tooling:** Go provides a fantastic set of command-line tools for common tasks:
+    *   `go build`: Compiles packages and dependencies.
+    *   `go run`: Compiles and runs the main package.
+    *   `go fmt`: Formats Go code according to standard style.
+    *   `go get`: Adds dependencies to the current module and installs them.
+    *   `go mod`: Module maintenance (e.g., `go mod tidy` to clean up dependencies).
+    *   `go test`: Runs tests.
+
+## 2. Go Project Structure in This Application
+
+This project follows common Go conventions for structuring code:
+
+*   **Modules and `go.mod`:**
+    *   The project is a Go module, defined by the `go.mod` file in the root directory.
+    *   This file declares the module path (e.g., `go-placement-policy`), the Go version, and lists all direct and indirect dependencies (like `github.com/go-chi/chi`).
+    *   `go mod tidy` is used to ensure `go.mod` and `go.sum` (which stores checksums of dependencies) are up-to-date.
+
+*   **`cmd/api/main.go`:**
+    *   The `cmd/` directory is a standard convention for housing the main application(s) of a project.
+    *   `main.go` is the entry point for our backend API server. It's responsible for:
+        *   Initializing shared resources (like loading data via `storage.init()`).
+        *   Setting up the HTTP router (`chi`).
+        *   Starting the HTTP server to listen for incoming requests.
+
+*   **`internal/` Directory:**
+    *   Code within the `internal/` directory is only accessible to code within the same parent directory (i.e., within our `go-placement-policy` project). This is Go's way of enforcing private packages for a project.
+    *   **`internal/api/`:** Contains HTTP handlers (`handlers.go`) responsible for processing incoming API requests, interacting with other internal packages (like `storage` and `eligibility`), and sending back responses.
+    *   **`internal/models/`:** Defines the data structures (structs) used throughout the application, such as `Student`, `Company`, `PolicyConfig`, and `EligibilityResult`. These structs often include JSON tags for easy conversion to/from JSON.
+    *   **`internal/storage/`:** Manages the in-memory data storage for the application (`inmemory.go`). It initializes data by loading from JSON files and provides mechanisms (like mutexes) for safe concurrent access.
+    *   **`internal/eligibility/`:** Contains the core business logic of the system (`engine.go`). The `PerformEligibilityCheck` function in this package is responsible for applying placement policies to determine a student's eligibility for a company.
+    *   **`internal/data/`:** Holds the JSON files (`students.json`, `company.json`) that provide the initial dataset for students and companies when the server starts.
+
+*   **Packages:**
+    *   Go code is organized into packages. Each directory typically represents a package.
+    *   The first line of a Go file is `package <packageName>`.
+    *   **Visibility:** Go controls visibility of identifiers (variables, functions, types, struct fields) based on their capitalization.
+        *   Identifiers starting with an **uppercase letter** are **exported** (public) and can be accessed from other packages.
+        *   Identifiers starting with a **lowercase letter** are **unexported** (private) and are only accessible within the same package. This is a key concept for encapsulation in Go.
+
+## 3. Go Backend Implementation Details
+
+Let's dive into how specific Go features and packages are used in this project:
+
+*   **HTTP Server (`net/http` package):**
+    *   The primary package for building web servers in Go.
+    *   In `cmd/api/main.go`, `http.ListenAndServe(":8080", router)` starts an HTTP server that listens on port 8080 and uses the `chi` router to handle incoming requests.
+
+*   **Routing (`github.com/go-chi/chi/v5` package):**
+    *   `chi` is a lightweight, idiomatic, and composable router for building Go HTTP services.
+    *   **Why a router?** It helps map incoming URL paths and HTTP methods to specific handler functions.
+    *   **Defining Routes:** In `main.go`, routes are defined using methods like `router.Get()`, `router.Post()`, etc.
+        *   Example: `router.Get("/students", api.GetAllStudentsHandler)` means an HTTP GET request to `/students` will be handled by `api.GetAllStudentsHandler`.
+    *   **URL Parameters:** `chi` allows capturing parts of the URL path, like `router.Get("/students/{studentID}", api.GetStudentByIDHandler)`. The `studentID` can then be extracted in the handler using `chi.URLParam(r, "studentID")`.
+    *   **Middleware:** `chi` supports middleware, which are functions that can process a request before or after the main handler. This project uses:
+        *   `middleware.Logger`: Logs details of each request.
+        *   `middleware.Recoverer`: Recovers from panics in handlers and returns a 500 error, preventing the server from crashing.
+        *   `middleware.Heartbeat`: Provides a `/ping` endpoint for health checks.
+        *   `cors.Handler`: Configures Cross-Origin Resource Sharing to allow requests from the React frontend (e.g., `http://localhost:3000`).
+
+*   **API Handlers (`internal/api/handlers.go`):**
+    *   These are functions with the signature `func(w http.ResponseWriter, r *http.Request)`.
+        *   `http.ResponseWriter (w)`: Used to construct and send the HTTP response back to the client.
+        *   `*http.Request (r)`: Represents the incoming HTTP request (contains headers, body, URL, etc.).
+    *   **Responsibilities:**
+        *   **Decoding Requests:** For POST/PUT requests, they read the request body (typically JSON) using `json.NewDecoder(r.Body).Decode(&targetStruct)`.
+        *   **Interacting with Business Logic:** They call functions from other packages (e.g., `storage` to fetch/update data, `eligibility.PerformEligibilityCheck` to run rules).
+        *   **Encoding Responses:** They send JSON responses back to the client using `json.NewEncoder(w).Encode(dataStruct)` and set appropriate headers like `w.Header().Set("Content-Type", "application/json")`.
+        *   **Setting HTTP Status Codes:** `w.WriteHeader(http.StatusOK)`, `w.WriteHeader(http.StatusCreated)`, `http.Error(w, "message", http.StatusBadRequest)`.
+    *   **Specific Handlers:**
+        *   `GetPoliciesHandler`: Returns the current `ActivePolicyConfig`.
+        *   `ConfigurePoliciesHandler`: Updates `ActivePolicyConfig` based on POSTed JSON.
+        *   `CheckEligibilityHandler`: Takes `StudentID` and `CompanyID`, calls `PerformEligibilityCheck`, and returns the result.
+        *   `GetAllStudentsHandler`: Returns all students.
+        *   `GetStudentByIDHandler`: Returns a specific student by ID.
+        *   `GetAllCompaniesHandler`: Returns all companies.
+        *   `GetEligibleStudentsForCompanyHandler`: Returns students eligible for a given company.
+        *   `CreateStudentHandler`: Adds a new student to the storage.
+
+*   **Data Models (`internal/models/`):**
+    *   Defined as `struct` types. A struct is a composite type that groups together zero or more named values (fields) of arbitrary types.
+    *   Example (`Student` struct):
+        ```go
+        type Student struct {
+            ID                int     `json:"id"`
+            FullName          string  `json:"name"` // Renamed to 'name' in JSON
+            CGPA              float64 `json:"cgpa"`
+            IsPlaced          bool    `json:"isPlaced"`
+            // ... other fields
+        }
+        ```
+    *   **JSON Tags:** The `json:"fieldName"` tags tell the `encoding/json` package how to map struct fields to JSON keys during marshalling (Go struct to JSON) and unmarshalling (JSON to Go struct). This allows Go field names (which are typically CamelCase) to map to JSON keys (often camelCase or snake_case).
+
+*   **In-Memory Storage (`internal/storage/inmemory.go`):**
+    *   This project uses global variables (slices and structs) to store application data in memory. This is suitable for smaller applications or prototypes. For production, a database would typically be used.
+        *   `Students []models.Student`
+        *   `Companies []models.Company`
+        *   `ActivePolicyConfig models.PolicyConfig`
+    *   **`init()` function:** In Go, `init()` functions are executed automatically when a package is initialized. The `storage` package uses `init()` to:
+        *   Call `loadStudentsFromFile()` to populate the `Students` slice.
+        *   Call `loadCompaniesFromFile()` to populate the `Companies` slice.
+        *   Call `initializeDefaultPolicies()` to set up an initial `ActivePolicyConfig`.
+        *   Call `UpdatePlacementStats()` to calculate initial placement statistics.
+    *   **Concurrency and Mutexes (`sync.RWMutex`, `sync.Mutex`):**
+        *   When multiple HTTP requests arrive concurrently, they might be handled by different goroutines. If these handlers try to read or modify shared data (like `ActivePolicyConfig` or the `Students` slice) simultaneously, it can lead to **race conditions** (unpredictable behavior due to interleaved execution).
+        *   **Mutexes** (Mutual Exclusions) are used to protect shared data:
+            *   `sync.RWMutex` (Read-Write Mutex): Allows multiple readers to access data concurrently OR a single writer to access data exclusively. Used for `PolicyConfigMutex` and `PlacementStatsMutex`.
+                *   `PolicyConfigMutex.RLock()`: Acquire a read lock (multiple goroutines can hold a read lock).
+                *   `PolicyConfigMutex.RUnlock()`: Release a read lock.
+                *   `PolicyConfigMutex.Lock()`: Acquire a write lock (only one goroutine can hold a write lock; blocks new readers and writers).
+                *   `PolicyConfigMutex.Unlock()`: Release a write lock.
+            *   A `sync.Mutex` could also be used if simpler exclusive access is always needed (e.g., when appending to `Students` in `CreateStudentHandler`, `PolicyConfigMutex` is used for simplicity, but a dedicated mutex for `Students` could also be an option).
+    *   **`UpdatePlacementStats()`:** This function calculates `CachedTotalStudents` and `CachedPlacedStudentsCount`. Caching this information avoids recalculating it on every eligibility check, improving performance for the Placement Percentage Policy. It's called after students are loaded or created.
+
+*   **Eligibility Engine (`internal/eligibility/engine.go`):**
+    *   The `PerformEligibilityCheck(student models.Student, company models.Company) models.EligibilityResult` function is the heart of the business logic.
+    *   It takes a student and a company as input.
+    *   It reads the `ActivePolicyConfig` (using a read lock for safety).
+    *   It then applies each enabled policy in a defined sequence. Some policies might block a student, while others (like Dream Company) might override previous blocks.
+    *   It constructs an `EligibilityResult` struct containing the eligibility status (`IsEligible`) and a list of `Reasons`.
+
+*   **JSON Handling (`encoding/json` package):**
+    *   This is Go's standard library package for working with JSON.
+    *   **Unmarshalling (JSON to Go struct):**
+        *   `json.NewDecoder(r.Body).Decode(&targetStruct)`: Reads JSON from an `io.Reader` (like `r.Body`) and decodes it into the `targetStruct`.
+    *   **Marshalling (Go struct to JSON):**
+        *   `json.NewEncoder(w).Encode(dataStruct)`: Encodes `dataStruct` into JSON and writes it to an `io.Writer` (like `w`, the `http.ResponseWriter`).
+
+*   **Error Handling in Go:**
+    *   Go has a distinctive approach to error handling. Functions that can fail typically return an `error` value as their last return value.
+        ```go
+        value, err := someFunctionThatCanFail()
+        if err != nil {
+            // Handle the error (log it, return it, etc.)
+            log.Printf("Error: %v", err)
+            http.Error(w, "An internal error occurred", http.StatusInternalServerError)
+            return
+        }
+        // Use 'value' if err is nil
+        ```
+    *   This explicit error checking makes error handling more visible and robust.
+    *   `http.Error(w, "Error message", http.StatusBadRequest)` is a utility to send a plain text error response with a specific HTTP status code.
+
+*   **File I/O (`io/ioutil`, `os`, `path/filepath`):**
+    *   Used in `internal/storage/inmemory.go` to load initial data from JSON files:
+        *   `os.Getwd()`: Gets the current working directory (important because `go run` might be executed from different locations).
+        *   `path/filepath.Join()`: Safely constructs file paths.
+        *   `os.Stat()`: Checks if a file exists.
+        *   `io/ioutil.ReadFile()`: Reads the entire content of a file into a byte slice. This is deprecated in newer Go versions in favor of `os.ReadFile()`, but `ioutil` is used here.
+
+## 4. How to Run and Build the Go Backend
+
+*   **Running (for development):**
+    *   Navigate to the project root directory in your terminal.
+    *   Execute: `go run cmd/api/main.go`
+    *   This command compiles and runs the `main.go` program. The server will start (usually on `http://localhost:8080`).
+
+*   **Building (for deployment):**
+    *   Navigate to the project root directory.
+    *   Execute: `go build -o placement-api cmd/api/main.go`
+        *   `-o placement-api` specifies the output file name for the compiled executable (e.g., `placement-api` or `placement-api.exe` on Windows).
+    *   After building, you can run the executable directly: `./placement-api` (on Linux/macOS) or `placement-api.exe` (on Windows).
+
+*   **Dependency Management:**
+    *   `go mod tidy`: This command is crucial. It ensures that the `go.mod` file matches the source code's dependencies. It adds any missing dependencies and removes unused ones. It's good practice to run this before committing changes.
+
+This document should provide a solid foundation for understanding the Go backend of the College Placement Policy System. By grasping these concepts, you'll be well-equipped to explain its architecture, data flow, and core logic.

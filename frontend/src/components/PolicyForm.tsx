@@ -35,15 +35,13 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving
         setFormData(prev => ({
             ...prev,
             [policySection]: {
-                ...(prev[policySection] || {}), // Ensure policy section exists
+                ...(prev[policySection] || {}),
                 [field]: value,
             },
         }));
     };
 
     const handleSwitchChange = (policySection: keyof PolicyConfig, field: string, checked: boolean) => {
-        // When a policy is disabled, we might want to reset its specific values or leave them as is.
-        // For now, just updating the enabled status.
         setFormData(prev => ({
             ...prev,
             [policySection]: {
@@ -73,7 +71,6 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving
         return <Typography>Loading form data...</Typography>;
     }
 
-    // Helper to create Textfield and Slider pair
     const renderNumericInput = (
         policyName: keyof PolicyConfig,
         fieldName: string,
@@ -83,7 +80,7 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving
         step: number,
         textFieldStep?: string | number
     ) => {
-        const policy = formData[policyName] as any; // Type assertion
+        const policy = formData[policyName] as any;
         const isEnabled = policy?.enabled;
         const value = policy?.[fieldName] ?? '';
 
@@ -126,15 +123,18 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving
                             <Switch
                                 checked={!!formData.maximumCompanies?.enabled}
                                 onChange={(e) => handleSwitchChange('maximumCompanies', 'enabled', e.target.checked)}
-                                onClick={(e) => e.stopPropagation()} // Prevent accordion from toggling when switch is clicked
+                                onClick={(e) => e.stopPropagation()}
                             />
                         }
                         label={<Typography variant="h6">Maximum Companies Policy</Typography>}
-                        onClick={(e) => e.stopPropagation()} // Prevent accordion from toggling
-                        onFocus={(e) => e.stopPropagation()} // Prevent accordion from toggling
+                        onClick={(e) => e.stopPropagation()}
+                        onFocus={(e) => e.stopPropagation()}
                     />
                 </AccordionSummary>
                 <AccordionDetails>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                        This policy limits the maximum number of companies a student can apply to.
+                    </Typography>
                     {renderNumericInput('maximumCompanies', 'maxN', 'Max Applications (N)', 0, 20, 1)}
                 </AccordionDetails>
             </Accordion>
@@ -156,6 +156,9 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving
                     />
                 </AccordionSummary>
                 <AccordionDetails>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                        Allows students to declare a 'dream offer', potentially bypassing other restrictions if they receive an offer from such a company.
+                    </Typography>
                     <Typography variant="body2" color="textSecondary">
                         {formData.dreamOffer?.enabled ? "Students can declare a dream offer. Further configurations might be added here later." : "This policy is currently disabled."}
                     </Typography>
@@ -179,6 +182,9 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving
                     />
                 </AccordionSummary>
                 <AccordionDetails>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                        Similar to Dream Offer, but allows students to specify a 'dream company'. If they get an offer from this company, other rules might be relaxed.
+                    </Typography>
                     <Typography variant="body2" color="textSecondary">
                         {formData.dreamCompany?.enabled ? "Students can declare a dream company. Further configurations might be added here later." : "This policy is currently disabled."}
                     </Typography>
@@ -202,6 +208,9 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving
                     />
                 </AccordionSummary>
                 <AccordionDetails>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                        Sets a minimum CGPA required for students to be eligible for placements. Also defines a high salary threshold, which might interact with other policies.
+                    </Typography>
                     {renderNumericInput('cgpaThreshold', 'minimumCGPA', 'Minimum CGPA (0.0-10.0)', 0, 10, 0.1, "0.01")}
                     {renderNumericInput('cgpaThreshold', 'highSalaryThreshold', 'High Salary Threshold Amount', 0, 5000000, 100000)}
                 </AccordionDetails>
@@ -224,6 +233,9 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving
                     />
                 </AccordionSummary>
                 <AccordionDetails>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                        Defines a target placement percentage for the institution. This might be used for reporting or to trigger specific actions.
+                    </Typography>
                     {renderNumericInput('placementPercentage', 'targetPercentage', 'Target Percentage (0-100%)', 0, 100, 1, "0.1")}
                 </AccordionDetails>
             </Accordion>
@@ -245,6 +257,9 @@ const PolicyForm: React.FC<PolicyFormProps> = ({ initialData, onSubmit, isSaving
                     />
                 </AccordionSummary>
                 <AccordionDetails>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                        Categorizes offers into different tiers (e.g., L1, L2) based on salary. It also specifies a required hike percentage for moving between tiers.
+                    </Typography>
                     {renderNumericInput('offerCategory', 'l1ThresholdAmount', 'L1 Threshold (Highest Tier)', 0, 5000000, 100000)}
                     {renderNumericInput('offerCategory', 'l2ThresholdAmount', 'L2 Threshold (Middle Tier)', 0, 3000000, 100000)}
                     {renderNumericInput('offerCategory', 'requiredHikePercentage', 'Required Hike % for L2', 0, 100, 1)}

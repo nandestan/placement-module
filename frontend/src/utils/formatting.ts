@@ -7,7 +7,7 @@
  */
 export const formatToINR = (amount: number | undefined | null): string => {
     if (amount === undefined || amount === null || isNaN(Number(amount))) {
-        return '-'; // Or return '₹0.00' or an empty string, based on preference
+        return '-';
     }
     return Number(amount).toLocaleString('en-IN', {
         style: 'currency',
